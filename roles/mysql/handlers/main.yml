@@ -1,0 +1,9 @@
+---
+# Handler to handle MYSQL tier notifications
+- name: Restart MySQL
+  service:
+    name: "{{ mysql_daemon }}"
+    state: restarted
+  become: true
+  become_user: root
+  tags: [ mysql, sweagle, sweagle-mysql ]

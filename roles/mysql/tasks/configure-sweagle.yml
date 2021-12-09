@@ -1,0 +1,59 @@
+---
+- name: Make sure MySQL service is running
+  systemd:
+    state: started
+    name: "{{ mysql_daemon }}"
+  become: true
+  tags: [mysql, sweagle, sweagle-mysql]
+
+- name: Create SWEAGLE MySQL schemas
+  mysql_db:
+    login_user: "{{ mysql_root_user }}"
+    login_password: "{{ mysql_root_password }}"
+    login_host: "127.0.0.1"
+#    login_host: "{{ mysql_bind_address }}"
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "{{ sweagle_mysql_db }}"
+    - vault
+  become: true
+  tags: [mysql, sweagle, sweagle-mysql]
+
+#- name: Grant all privileges on SWEAGLE MySQL schemas to "{{ sweagle_mysql_user }}" for Red Hat
+#  shell: >
+#    mysql -u {{ mysql_root_user }} -p{{ mysql_root_password }} -e
+#    "GRANT ALL PRIVILEGES ON {{ item }}.* TO '{{ sweagle_mysql_user }}'@'%' IDENTIFIED WITH mysql_native_password BY '{{ sweagle_mysql_password }}'"
+#  with_items:
+#    - "{{ sweagle_mysql_db }}"
+#    - vault
+#  become: true
+#  when: ansible_os_family == "RedHat"
+#  notify: Restart mysql
+#  tags: [mysql, sweagle, sweagle-mysql]
+
+- name: Grant all privileges on SWEAGLE MySQL schemas to "{{ sweagle_mysql_user }}"
+  mysql_user:
+    login_user: "{{ mysql_root_user }}"
+    login_password: "{{ mysql_root_password }}"
+    login_host: "127.0.0.1"
+#    login_host: "{{ mysql_bind_address }}"
+    name: "{{ sweagle_mysql_user }}"
+    password: "{{ sweagle_mysql_password }}"
+    priv: "{{ item }}.*:ALL"
+    append_privs: true
+    host: '%'
+    state: present
+  with_items:
+    - "{{ sweagle_mysql_db }}"
+    - vault
+  become: true
+  tags: [mysql, sweagle, sweagle-mysql]
+
+- name: Flush privileges
+  shell: >
+    mysql --host={{ mysql_bind_address }} --user={{ mysql_root_user }} --password={{ mysql_root_password }}
+    --execute="FLUSH PRIVILEGES;"
+  become: true
+  tags: [mysql, sweagle, sweagle-mysql]
+#    mysql --host={{ mysql_bind_address }} --user={{ mysql_root_user }} --password={{ mysql_root_password }}

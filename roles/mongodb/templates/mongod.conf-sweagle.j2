@@ -1,0 +1,46 @@
+# mongod.conf
+# {{ ansible_managed }}
+
+# for documentation of all options, see:
+#   http://docs.mongodb.org/manual/reference/configuration-options/
+
+# where to write logging data.
+systemLog:
+  destination: file
+  logAppend: true
+  path: "{{ mongodb_systemlog_path }}"
+
+# Where and how to store data.
+storage:
+  dbPath: "{{ mongodb_storage_dbpath }}"
+  journal:
+    enabled: true
+#  engine:
+#  mmapv1:
+#  wiredTiger:
+
+# how the process runs
+processManagement:
+  fork: true  # fork and run in background
+  pidFilePath: /var/run/mongodb/mongod.pid  # location of pidfile
+  timeZoneInfo: /usr/share/zoneinfo
+
+# network interfaces
+net:
+  port: "{{ mongodb_net_port }}"
+  bindIp: "{{ mongodb_net_bindip }}"
+
+
+security:
+  authorization: "enabled"
+#operationProfiling:
+
+#replication:
+
+#sharding:
+
+## Enterprise-Only Options
+
+#auditLog:
+
+#snmp:

@@ -1,0 +1,56 @@
+---
+## This appliess only to webservers
+- name: Create SWEAGLE web root
+  file:
+    path: "{{ sweagle_web_root_dir }}"
+    state: directory
+    mode: "0755"
+  become: true
+  tags: [ nginx, sweagle, sweagle-web ]
+
+- name: Unzip web package
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ sweagle_web_root_dir }}"
+  become: true
+  with_fileglob:
+    - "/tmp/{{ sweagle_version }}/full/bin/ui/dist*.zip"
+  tags: [ nginx, sweagle, sweagle-web ]
+
+- name: Deploy SWEAGLE Nginx default conf
+  template:
+    src: "sweagle-default.conf.j2"
+    dest: "/etc/nginx/conf.d/default.conf"
+  become: true
+  tags: [ nginx, sweagle, sweagle-web ]
+
+- name: Configure sweagle.conf
+  copy:
+    src: "sweagle.conf"
+    dest: "/etc/nginx/conf.d/sweagle.conf"
+  become: true
+  tags: [ nginx, sweagle, sweagle-web ]
+
+- name: Copy SSL certificate
+  copy:
+    src: "../../../files/sweagle/sweagle.pem"
+    dest: "{{ nginx_ssl_dir }}/sweagle.pem"
+  become: true
+  when: sweagle_web_ssl
+  tags: [ nginx, sweagle, sweagle-web ]
+
+- name: Copy SSL certificate key
+  copy:
+    src: "../../../files/sweagle/sweagle.key"
+    dest: "{{ nginx_ssl_dir }}/sweagle.key"
+  become: true
+  when: sweagle_web_ssl
+  tags: [ nginx, sweagle, sweagle-web ]
+
+- name: Deploy SWEAGLE Nginx conf
+  template:
+    src: "sweagle-nginx.conf.j2"
+    dest: "/etc/nginx/nginx.conf"
+  become: true
+  tags: [ nginx, sweagle, sweagle-web ]
+  notify: Restart nginx

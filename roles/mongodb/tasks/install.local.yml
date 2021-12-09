@@ -1,0 +1,37 @@
+---
+# Install Mongo from local files
+- name: Establish some role-related facts
+  set_fact:
+    mongodb_major_version: "{{ mongodb_version[0:3] }}"
+  tags: mongodb
+
+# Install signature file to avoid error "Failed to validate GPG signature for ..."
+#- name: Install mongodb RPM signatures
+#  rpm_key:
+#    state: present
+#    key: ../../../files/RedHat/mongodb/server-4.4.asc
+#  tags: mongodb
+
+- name: Install mongodb prerequisites packages from local
+  package:
+    name: "{{ item }}"
+    state: present
+    disable_gpg_check: True
+  become: true
+  with_items: "{% if ansible_os_family == 'Debian' %}{{ lookup('fileglob', '../../../files/Debian/mongodb/prereqs/*.deb').split(',') | sort }}
+    {% else %}{{ lookup('fileglob', '../../../files/RedHat/mongodb/prereqs/*.rpm').split(',') | sort }}{% endif %}"
+  when: force_local_installation
+  # Ignore errors for this task as missing some prerequisites may not be blocking
+  ignore_errors: true
+  tags: mongodb
+
+- name: Install mongodb packages from local
+  package:
+    name: "{{ item }}"
+    state: present
+    disable_gpg_check: True
+  become: true
+  with_items: "{% if ansible_os_family == 'Debian' %}{{ lookup('fileglob', '../../../files/Debian/mongodb/*.deb').split(',') | sort }}
+    {% else %}{{ lookup('fileglob', '../../../files/RedHat/mongodb/*.rpm').split(',') | sort }}{% endif %}"
+  when: force_local_installation
+  tags: mongodb
