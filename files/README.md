@@ -37,7 +37,7 @@ Create a folder for these components to put their packages
   - /prereqs/* (all packages required for list below)
   - mongodb-org-server
   - mongodb-org-shell
-  - policycoreutils-python-2.5-34.el7.x86_64
+  - policycoreutils-python-2.5 or higher (ex: `policycoreutils-python-2.5-34.el7.x86_64`)
   - python-pymongo
 
   - playbook installer will look for any `*.deb` or `*.rpm` files depending on OS family
