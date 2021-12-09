@@ -1,0 +1,115 @@
+---
+- name: Get Vault token
+  set_fact: sweagle_vault_token="{{ vault_token }}"
+  when: (sweagle_vault_token is undefined or sweagle_vault_token == "")
+    and vault_token != ""
+  tags: [ sweagle, sweagle-core, sweagle-vault ]
+
+- name: Get user input - Vault token
+  pause:
+    prompt: "Please paste your vault token"
+    echo: true
+  register: result
+  when: sweagle_vault_token is undefined or sweagle_vault_token == ""
+  tags: [ sweagle, sweagle-core ]
+
+- name: Set vault token
+  set_fact:
+    sweagle_vault_token: "{{ result.user_input }}"
+  when: sweagle_vault_token is undefined or sweagle_vault_token == ""
+  tags: [ sweagle, sweagle-core ]
+
+- name: Get user input - License key
+  pause:
+    prompt: "Please paste your license key"
+    echo: true
+  register: result
+  when: sweagle_license_key is undefined or sweagle_license_key == ""
+  tags: [ sweagle, sweagle-core ]
+
+- name: Set license key var
+  set_fact:
+    sweagle_license_key: "{{ result.user_input }}"
+  when: sweagle_license_key is undefined or sweagle_license_key == ""
+  tags: [ sweagle, sweagle-core ]
+
+- name: Configure core application.yml
+  template:
+    src: "{{ sweagle_version }}/core-application.yml.j2"
+    dest: "{{ sweagle_installation_folder }}/bin/core/application.yml"
+  tags: [ sweagle, sweagle-core ]
+
+- name: Create JDBC lib installation folder "{{ sweagle_installation_folder }}/bin/core/libs" (version>=3.13)
+  file:
+    path: "{{ sweagle_installation_folder }}/bin/core/libs"
+    state: directory
+    owner: "{{ sweagle_system_user }}"
+    group: "{{ sweagle_system_group }}"
+  when: sweagle_version is version_compare('3.13', '>=')
+  tags: [ sweagle, sweagle-core ]
+
+- name: Untar JDBC driver package (version>=3.13)
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ sweagle_installation_folder }}/bin/core/libs"
+    extra_opts: ['--strip-components=1']
+  with_items: "{{ lookup('fileglob', '../../../files/mysql-jdbc/mysql*.gz').split(',') | sort }}"
+  when: sweagle_version is version_compare('3.13', '>=')
+  tags: [ sweagle, sweagle-core ]
+
+### PUT IN COMMENT AS THIS IS NOW INCLUDED IN SWEAGLE PACKAGE
+#- name: Copy script to create service core (version>=3.13)
+#  copy:
+#    src: "createService_v3.sh"
+#    dest: "{{ sweagle_installation_folder }}/scripts/createService_v2.sh"
+#    mode: a+x
+#    group: "{{ sweagle_system_group }}"
+#    owner: "{{ sweagle_system_user }}"
+#  when: sweagle_create_services and sweagle_version is version_compare('3.13', '>=')
+#  tags: [ sweagle, sweagle-core ]
+
+- name: "Find core Jar file"
+  find:
+    paths: "{{ sweagle_installation_folder }}/bin/core"
+    patterns: "core-*.jar"
+    file_type: "file"
+  register: jar_files
+  tags: [ sweagle, sweagle-core ]
+  
+- name: Display service creation command (>=3.13)
+  debug:
+    msg: "{{ sweagle_installation_folder }}/scripts/createService_v2.sh sweagleCore {{ sweagle_installation_folder }}/bin/core {{ jar_files.files[0].path | basename }} {{ jdk_install_dir }}/bin/java {{ sweagle_core_xmx }}"
+  when: sweagle_create_services and sweagle_version is version_compare('3.13', '>=')
+  tags: [ sweagle, sweagle-core ]
+
+- name: Create service core (version>=3.13)
+  shell: "{{ sweagle_installation_folder }}/scripts/createService_v2.sh sweagleCore {{ sweagle_installation_folder }}/bin/core {{ jar_files.files[0].path | basename }} {{ jdk_install_dir }}/bin/java {{ sweagle_core_xmx }}"
+  become: true
+  when: sweagle_create_services and sweagle_version is version_compare('3.13', '>=')
+  tags: [ sweagle, sweagle-core ]
+
+- name: Display service creation command (<3.13)
+  debug:
+    msg: "{{ sweagle_installation_folder }}/scripts/createService.sh sweagleCore {{ sweagle_installation_folder }}/bin/core {{ jar_files.files[0].path | basename }} {{ sweagle_core_xmx }}"
+  when: sweagle_create_services and sweagle_version is version_compare('3.13', '<')
+  tags: [ sweagle, sweagle-core ]
+
+- name: Create service core (version<3.13)
+  shell: "{{ sweagle_installation_folder }}/scripts/createService.sh sweagleCore {{ sweagle_installation_folder }}/bin/core {{ jar_files.files[0].path | basename }} {{ sweagle_core_xmx }}"
+  become: true
+  when: sweagle_create_services and sweagle_version is version_compare('3.13', '<')
+  tags: [ sweagle, sweagle-core ]
+
+- name: Enable and start core service
+  service:
+    name: "sweagleCore"
+    state: started
+    enabled: yes
+  become: true
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-core ]
+
+- name: Wait for core to startup
+  wait_for: host="{{ inventory_hostname }}" port={{ sweagle_core_port }} delay=15 connect_timeout=5 timeout=120
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-core ]

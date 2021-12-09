@@ -1,0 +1,40 @@
+---
+- name: Configure ml application.yml
+  template:
+    src: "{{ sweagle_version }}/ml-application.yml.j2"
+    dest: "{{ sweagle_installation_folder }}/bin/ml/application.yml"
+  tags: [ sweagle, sweagle-ml ]
+
+- name: "Find ml Jar file"
+  find:
+    paths: "{{ sweagle_installation_folder }}/bin/ml"
+    patterns: "ml-*.jar"
+    file_type: "file"
+  register: jar_files
+  tags: [ sweagle, sweagle-ml ]
+
+- name: Display service creation command
+  debug:
+    msg: "{{ sweagle_installation_folder }}/scripts/createService_v2.sh sweagleML {{ sweagle_installation_folder }}/bin/ml {{ jar_files.files[0].path | basename }} {{ jdk_install_dir }}/bin/java {{ sweagle_ml_xmx }}"
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-ml ]
+
+- name: Create service ml
+  shell: "{{ sweagle_installation_folder }}/scripts/createService_v2.sh sweagleML {{ sweagle_installation_folder }}/bin/ml {{ jar_files.files[0].path | basename }} {{ jdk_install_dir }}/bin/java {{ sweagle_ml_xmx }}"
+  become: true
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-ml ]
+
+- name: Enable and start ml service
+  service:
+    name: "sweagleML"
+    state: started
+    enabled: yes
+  become: true
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-ml ]
+
+- name: Wait for ml to startup
+  wait_for: host="{{ inventory_hostname }}" port={{ sweagle_ml_port }} delay=15 connect_timeout=5 timeout=120
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-ml ]

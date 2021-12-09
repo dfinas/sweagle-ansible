@@ -1,0 +1,12 @@
+storage "mysql" {
+address = "{{ sweagle_mysql_host }}:{{ sweagle_mysql_port }}"
+username = "{{ sweagle_mysql_user }}"
+password = "{{ sweagle_mysql_password }}"
+database = "{{ vault_backend_db | default('vault') }}"
+scheme = "http"
+}
+listener "tcp" {
+address = "{{ inventory_hostname }}:{{ vault_port | default(8200) }}"
+tls_disable = 1
+}
+disable_mlock = true

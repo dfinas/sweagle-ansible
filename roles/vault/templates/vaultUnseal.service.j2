@@ -1,0 +1,9 @@
+[Unit]
+Description=HashiCorp Vault Service
+
+[Service]
+ExecStart={{ vault_install_dir }}/vault server -config={{ vault_conf_dir }}/vaultconfig.hcl
+ExecStartPost=/bin/bash -c "{{ vault_install_dir }}/unseal.sh"
+
+[Install]
+WantedBy=multi-user.target

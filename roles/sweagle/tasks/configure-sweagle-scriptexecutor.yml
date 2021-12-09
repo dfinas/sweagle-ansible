@@ -1,0 +1,58 @@
+---
+- name: Configure scriptexecutor application.yml
+  template:
+    src: "{{ sweagle_version }}/scriptexecutor-application.yml.j2"
+    dest: "{{ sweagle_installation_folder }}/bin/scriptExecutor/application.yml"
+  tags: [ sweagle, sweagle-scriptexecutor ]
+
+- name: Create REGEX lib installation folder "{{ sweagle_installation_folder }}/bin/scriptExecutor/libs" (version>=3.21)
+  file:
+    path: "{{ sweagle_installation_folder }}/bin/scriptExecutor/libs"
+    state: directory
+    owner: "{{ sweagle_system_user }}"
+    group: "{{ sweagle_system_group }}"
+  when: sweagle_version is version_compare('3.21', '>=')
+  tags: [ sweagle, sweagle-scriptexecutor ]
+
+- name: Untar REGEX driver package (version>=3.21)
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ sweagle_installation_folder }}/bin/scriptExecutor/libs"
+    extra_opts: ['--strip-components=1']
+  with_items: "{{ lookup('fileglob', '../../../files/regex/regex*.gz').split(',') | sort }}"
+  when: sweagle_version is version_compare('3.21', '>=')
+  tags: [ sweagle, sweagle-scriptexecutor ]
+
+- name: Find scriptexecutor Jar file
+  find:
+    paths: "{{ sweagle_installation_folder }}/bin/scriptExecutor"
+    patterns: "script-executor-*.jar"
+    file_type: "file"
+  register: jar_files
+  tags: [ sweagle, sweagle-scriptexecutor ]
+
+- name: Display service creation command
+  debug:
+    msg: "{{ sweagle_installation_folder }}/scripts/createService_v2.sh sweagleScriptExecutor {{ sweagle_installation_folder }}/bin/scriptExecutor {{ jar_files.files[0].path | basename }} {{ jdk_install_dir }}/bin/java {{ sweagle_scriptexecutor_xmx }}"
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-scriptexecutor ]
+
+- name: Create service scriptexecutor
+  shell: "{{ sweagle_installation_folder }}/scripts/createService_v2.sh sweagleScriptExecutor {{ sweagle_installation_folder }}/bin/scriptExecutor {{ jar_files.files[0].path | basename }} {{ jdk_install_dir }}/bin/java {{ sweagle_scriptexecutor_xmx }}"
+  become: true
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-scriptexecutor ]
+
+- name: Enable and start scriptexecutor service
+  service:
+    name: "sweagleScriptExecutor"
+    state: started
+    enabled: yes
+  become: true
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-scriptexecutor ]
+
+- name: Wait for scriptexecutor to startup
+  wait_for: host="{{ inventory_hostname }}" port={{ sweagle_scriptexecutor_port }} delay=15 connect_timeout=5 timeout=120
+  when: sweagle_create_services
+  tags: [ sweagle, sweagle-scriptexecutor ]

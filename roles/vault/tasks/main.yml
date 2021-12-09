@@ -1,0 +1,134 @@
+---
+- name: Install unzip from repo
+  package:
+    name: unzip
+    update_cache: yes
+  become: true
+  when: not force_local_installation
+  tags: vault
+
+- name: Install unzip from local
+  package:
+    name: "{{ item }}"
+    update_cache: yes
+  become: true
+  with_fileglob:
+    - "../../../files/*unzip*.{{ 'deb' if (ansible_os_family == 'Debian') else 'rpm' }}"
+  when: force_local_installation
+  tags: vault
+
+- name: Create vault target directories
+  file: state=directory path="{{ item }}"
+  with_items:
+    - "{{ vault_install_dir }}"
+    - "{{ vault_conf_dir }}"
+  become: true
+  tags: vault
+
+- name: "Download and install vault {{ vault_version }} from URL"
+  unarchive:
+    src: "https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_linux_amd64.zip"
+    dest: "{{ vault_install_dir }}"
+    remote_src: True
+  become: true
+  when: not force_local_installation
+  tags: vault
+
+- name: Download and install vault {{ vault_version }} from LOCAL
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ vault_install_dir }}"
+    remote_src: True
+  become: true
+  with_fileglob:
+    - "../../../files/vault/*vault_{{ vault_version }}*.zip"
+  when: force_local_installation
+  tags: vault
+
+- name: Populate /etc/environment with VAULT variables
+  lineinfile:
+    dest: "/etc/environment"
+    state: present
+    regexp: "^{{ item.key }}"
+    line: "{{ item.key }}={{ item.value}}"
+  with_items: "{{ os_environment }}"
+  become: true
+  tags: vault
+
+- name: Set PATH environment variables
+  lineinfile: dest="/root/.bashrc" line='export PATH=$PATH:{{ vault_install_dir }}' insertafter='EOF' regexp='export PATH=\$PATH:{{ vault_install_dir }}' state=present
+  become: true
+  tags: vault
+
+- name: Set VAULT_ADDR environment variables
+  lineinfile:
+    dest: "/root/.bashrc"
+    line: 'export VAULT_ADDR=http://{{ inventory_hostname }}:{{ vault_port }}'
+    insertafter: 'EOF'
+    regexp: 'export VAULT_ADDR=http://{{ inventory_hostname }}:{{ vault_port }}'
+    state: present
+  become: true
+  tags: vault
+
+- name: Source the bashrc file
+  shell: ". /root/.bashrc"
+  become: true
+  tags: vault
+
+- name: Copy vault config to server
+  template:
+    src: vaultconfig.hcl.j2
+    dest: "{{ vault_conf_dir }}/vaultconfig.hcl"
+  become: true
+  tags: [ vault, sweagle, sweagle-vault ]
+
+# Doesn't erase if exists, because it may contain unseal post script
+- name: Copy vault service to server (only if it doesn't exists)
+  template:
+    src: vault.service.j2
+    dest: "/usr/lib/systemd/system/vault.service"
+    force: no
+  become: true
+  tags: [ vault, sweagle, sweagle-vault ]
+
+- name: Start vault service
+  systemd:
+    state: started
+    name: vault
+    daemon_reload: yes
+  become: true
+  tags: [ vault, sweagle, sweagle-vault ]
+
+- name: Wait for vault to startup
+  wait_for: host={{ inventory_hostname }} port={{ vault_port }} delay=1 connect_timeout=5 timeout=30
+  tags: [ vault, sweagle, sweagle-vault ]
+
+- name: check if vault is already initialized
+  command: "{{ vault_install_dir }}/vault init -check -address=http://{{ inventory_hostname }}:{{ vault_port }}"
+  register: init_status
+  ignore_errors: true
+  tags: [ vault, sweagle, sweagle-vault ]
+
+## return code of 0 means init already done, 1 - error, 2 - init not done
+## cf. vault init --help
+
+- name: Init made but no init token defined
+  debug: msg="Vault has already been initialized, but no token provided. Please, enter token manually in SWEAGLE all.yml."
+  when: init_status.rc == 0
+    and (vault_token is undefined or vault_token == "")
+  tags: [ vault, sweagle, sweagle-vault ]
+
+- name: Error on Vault
+  debug: msg="Error on Vault, please correct after installation for encryption to work"
+  when: init_status.rc == 1
+  tags: [ vault, sweagle, sweagle-vault ]
+
+- name: Initialize Vault
+  include_tasks: vault-init.yml
+  when: init_status.rc == 2
+  tags: [ vault, sweagle, sweagle-vault ]
+
+- name: Unseal Vault
+  include_tasks: vault-unseal.yml
+  when: vault_key1 != "" and vault_key2 != "" and vault_key3 !=""
+  tags: [ vault, sweagle, sweagle-vault ]

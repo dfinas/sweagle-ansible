@@ -1,0 +1,8 @@
+[Unit]
+Description=HashiCorp Vault Service
+
+[Service]
+ExecStart={{ vault_install_dir }}/vault server -config={{ vault_conf_dir }}/vaultconfig.hcl
+
+[Install]
+WantedBy=multi-user.target
