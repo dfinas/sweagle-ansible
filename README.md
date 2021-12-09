@@ -108,7 +108,7 @@ PREREQUISITES
 ## Todo list
 
 - Check versions for prerequisites before installation
-ex: on MongoDB, when another release is installed, remove it before
+- Ex: on MongoDB, when another release is installed, remove it before
   - add a new parameter mongodb_remove_other_releases: false (by default)
   - add tasks to remove other release
   - currently, plays failed and you should remove manually
