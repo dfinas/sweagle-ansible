@@ -1,0 +1,71 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Stop and disable all services"
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      with_items:
+        - elasticsearch
+        - mongodb
+        - mysql
+        - nginx
+        - sweagleScriptExecutor
+        - sweagleCore
+        - sweagleTaskRunner
+        - vault
+      become: true
+      ignore_errors: yes
+      tags: uninstall
+
+    - name: Remove all installed packages
+      package:
+        pkg: "{{ item }}"
+        state: absent
+      with_items:
+        - elasticsearch
+        - mysql-server
+        - mysql-client
+        - mysql-common
+        - nginx
+        - openjdk-8-jdk
+        - python-mysqldb
+        - screen
+        - telnet
+        - jq
+        - "{{ mongodb_package }}"
+      become: true
+      ignore_errors: yes
+      tags: uninstall
+
+    - name: Clean all installed folder
+      file:
+        state: absent
+        path: "{{ item }}/"
+      with_items:
+        - "{{ es_data_dirs }}"
+        - "{{ es_log_dir }}"
+  #      - "/etc/opt/vault"
+  #      - "/etc/elasticsearch"
+  #      - "/etc/vault.d"
+        - "{{ mongodb_storage_dbpath }}"
+        - "{{ sweagle_installation_folder }}"
+  #      - "/usr/bin/vault*"
+        - "/var/log/mongodb"
+        - "/var/log/mysql"
+        - "/var/log/nginx"
+      become: true
+      ignore_errors: yes
+      tags: uninstall
+
+## remove files
+#  /etc/systemd/system/sweagle*
+#  /usr/bin/mongo*
+#  /usr/bin/mysql*
+#  /usr/bin/vault*
+
+    - name: Finish message
+      debug:
+        msg: "It is recommended to start an auto-remove of useless dependent libraries with sudo apt-get autoremove."
+      tags: uninstall

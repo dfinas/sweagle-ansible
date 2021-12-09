@@ -1,0 +1,90 @@
+---
+## Prerequisites:
+## Packages Ansible 2.5 or higher + package sshpass
+## be sure ansible.cfg knows your inventory folder and authorize non ssh checks
+# more /etc/ansible/ansible.cfg
+
+## WARNING
+## Copy your SWEAGLE full package zip file to /roles/sweagle/files
+## For silent install, copy your SWEAGLE license in parameter sweagle_license_key to /inventories/all-in-one/group_vars
+## If you don't put your license there, then playbook will ask for it when installing SWEAGLE component.
+
+## Test connection to targeted hosts with
+# ansible all -i ./inventories/test/hosts.yml -m ping
+
+## Test with
+# ansible-playbook all-install.yml -i ./inventories/all-in-one/hosts.yml --check
+
+## For full installation (including prerequisites)
+# ansible-playbook all-install.yml -i ./inventories/all-in-one/hosts.yml
+## For localhost installation, in case of host unreachable, use
+# ansible-playbook all-install.yml -i ./inventories/all-in-one/hosts.yml --connection local
+
+
+## For SWEAGLE installation (prerequisites already installed)
+## (check before that prerequisites are well installed)
+# ansible-playbook all-install.yml -i ./inventories/all-in-one/hosts.yml --tags sweagle
+
+## To install only a specifif component or prerequisite
+# ansible-playbook all-install.yml -i ./inventories/all-in-one/hosts.yml --tags "<COMPONENT>"
+## Example to do only mySQL:
+# ansible-playbook all-install.yml -i ./inventories/all-in-one/hosts.yml --tags mysql
+
+- hosts: all
+  roles:
+    - system
+
+- hosts: mysql
+  roles:
+    - mysql
+## Check mysql connection
+# mysql -u mdm_user -pmdm_password
+# use mdm
+## => you should get connected to mdm database
+
+- hosts: mongodb
+  roles:
+    - mongodb
+## Check mongo connection
+# mongo -u staticTreeUser -p staticTreePassword localhost:27017/sweagle
+## => you should get user connected to mongo
+## In case of error, you can start mongodb manually with
+# sudo -u mongod /usr/bin/mongod --config /etc/mongod.conf
+## To stop it
+# # sudo -u mongod /usr/bin/mongod --config /etc/mongod.conf --shutdown
+
+- hosts: indexservers
+  roles:
+    - jdk
+    - elasticsearch
+## Test elasticsearch is installed
+# curl -X GET http://elasticsearch-host:9200
+
+- hosts: appservers
+  roles:
+    - jdk
+    - vault
+    - sweagle
+## Check vault
+# vault --version
+## => must return 0.7.2
+# more /opt/vault/conf/vaultconfig.hcl
+## Login with master init token
+# vault login
+
+## check sweagle working, start non interactive
+#cd <your sweagle installation directory>/scripts
+#by default: cd /opt/sweagle/scripts
+#./startCORE.sh
+
+- hosts: webservers
+  roles:
+    - nginx
+## test with:
+# curl http://127.0.0.1
+## => you should get the SWEAGLE login page
+
+## this will load initial data in SWEAGLE tenant
+- hosts: installserver
+  roles:
+    - sweagle-data

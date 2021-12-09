@@ -1,0 +1,63 @@
+---
+# Variables shared among ALL HOSTS
+
+# Variable to force local installation
+force_local_installation: true
+# Root folder that will be used for sweagle, elasticsearch, jdk, mongo data and log, and vault installation
+root_installation_folder: "/opt"
+
+# Shared SWEAGLE variables
+sweagle_version: "3.22.0"
+sweagle_installation_folder: "{{ root_installation_folder }}/sweagle"
+sweagle_create_services: true
+# If you don't feed license here, ansible will ask it during installation process
+sweagle_license_key: ""
+sweagle_system_user: sweagle
+sweagle_system_group: sweagle
+sweagle_service_name: sweagle
+# Put here the customer name, it will be added as suffix to "admin_" for first user creation
+sweagle_tenant: poc
+
+sweagle_core_port: 8081
+sweagle_core_xmx: "1000m"   # Default is 4000m
+
+sweagle_taskrunner_port: 8082
+sweagle_taskrunner_xmx: "256m"   # Default is 1000m
+
+sweagle_scriptexecutor_port: 8083
+sweagle_scriptexecutor_xmx: "512m"   # Default is 2000m
+
+sweagle_ml_port: 8084
+sweagle_ml_xmx: "512m"   # Default is 2000m
+
+sweagle_elasticsearch_port: 9200
+sweagle_elasticsearch_host: "{{ groups['indexservers'][0] }}"
+sweagle_elasticsearch_cluster: "SWEAGLE_cluster"
+
+sweagle_mongo_port: 27017
+sweagle_mongo_host: "{{ groups['mongodb'][0] | default('127.0.0.1') }}"
+sweagle_mongo_db: sweagle
+sweagle_mongo_user: staticTreeUser
+sweagle_mongo_password: staticTreePassword
+
+sweagle_mysql_port: 3306
+sweagle_mysql_host: "{{ groups['mysql'][0] | default('127.0.0.1') }}"
+# {{ hostvars[groups['dbservers'][0]].ansible_default_ipv4.address|default('127.0.0.1') }}
+sweagle_mysql_db: "mdm"
+sweagle_mysql_user: "mdm_user"
+sweagle_mysql_password: "sweagle3.MDM"
+## This is to change mysql root password value (TO DO for first installation)
+## Set this value to false if playbook has already run or if you don't need to reasssign the value
+sweagle_mysql_password_update: true
+
+sweagle_vault_port: 8200
+# Set this value to false if vault has already been initialized
+sweagle_vault_auto_unseal: true
+# Vault token is obtained after init
+sweagle_vault_token: ""
+
+## WEB settings
+sweagle_web_root_dir: "/usr/share/nginx/sweagle"
+sweagle_web_ssl: true         # If enabled, don't forget to change sweagle_web_port to 443, and put your key files in nginx files directory
+sweagle_web_port: 443
+sweagle_web_log_dir: "{{ root_installation_folder }}/nginx/log"
