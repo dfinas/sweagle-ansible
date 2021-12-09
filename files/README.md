@@ -33,14 +33,14 @@ Create a folder for these components to put their packages
         - Example: `elasticsearch-7.15.2.rpm`
 
 - [OS family]/mongodb: you should have at least these packages
-      - /prereqs/* (all packages required for list below)
-      - mongodb-org-server
-      - mongodb-org-shell
-      - policycoreutils-python-2.5-34.el7.x86_64
-      - python-pymongo
+  - /prereqs/* (all packages required for list below)
+  - mongodb-org-server
+  - mongodb-org-shell
+  - policycoreutils-python-2.5-34.el7.x86_64
+  - python-pymongo
 
-      - playbook installer will look for any `*.deb` or `*.rpm` files depending on OS family
-      - it will install first the ones in /prereqs, then root folder
+  - playbook installer will look for any `*.deb` or `*.rpm` files depending on OS family
+  - it will install first the ones in /prereqs, then root folder
 
 - [OS family]/mysql: you should have (in this order)
       - `/prereqs/net-tools-2.0-0.20150915git.4.mga6.x86_64`
@@ -59,18 +59,30 @@ Create a folder for these components to put their packages
         - Example: `nginx-1.14.2-1.el7_4.ngx.x86_64.rpm`
 
 - sweagle: you should have
+
       - `/full-{{YOUR VERSION}}.zip`
+
       - `/upgrade-{{YOUR VERSION}}.zip` (if you just want to upgrade an existing installation)
+
       - `/sweagle.key` (to enable SSL, this is your private key file)
+
       - `/sweagle.pem` (to enable SSL, this is your public certificate key)
+
       - /sweagleExpert/exporters with cloning of https://github.com/sweagleExpert/exporters.git
+
       - /sweagleExpert/mditypes with cloning of https://github.com/sweagleExpert/mditypes.git
+
       - /sweagleExpert/nodetypes with cloning of https://github.com/sweagleExpert/nodetypes.git
+
       - /sweagleExpert/templates with cloning of https://github.com/sweagleExpert/templates.git
+
       - /sweagleExpert/validators with cloning of https://github.com/sweagleExpert/validators.git
 
+
 - vault
+
       - playbook installer will unzip any file with filename like `*vault_{{ vault_version }}*.zip`
+
         - Example: `vault_0.7.2_linux_386.zip`
 
 
