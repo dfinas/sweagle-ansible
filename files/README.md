@@ -43,7 +43,7 @@ Create a folder for these components to put their packages
   - playbook installer will look for any `*.deb` or `*.rpm` files depending on OS family
   - it will install first the ones in /prereqs, then root folder
 
-- [OS family]/mysql: you should have (in this order)
+- [OS family]/mysql: you should have for RHEL7 (in this order)
   - `/prereqs/net-tools-2.0-0.20150915git.4.mga6.x86_64`
   - `1-mysql-community-common-5.7.25-1.el7.x86_64`
   - `2-mysql-community-libs-5.7.25-1.el7.x86_64`
@@ -51,6 +51,15 @@ Create a folder for these components to put their packages
   - `mysql-community-libs-compat-5.7.25-1.el7.x86_64`
   - `mysql-community-server-5.7.25-1.el7.x86_64`
   - `MySQL-python-1.2.5-1.el7.x86_64`
+
+  For RHEL8, as MySQL 8.x is not supported, we keep RHEL7 MySQL 5.7.25 packages, only mySQL-python is upgraded
+
+  - `1-mysql-community-common-5.7.25-1.el7.x86_64`
+  - `2-mysql-community-libs-5.7.25-1.el7.x86_64`
+  - `mysql-community-client-5.7.25-1.el7.x86_64`
+  - `mysql-community-libs-compat-5.7.25-1.el7.x86_64`
+  - `mysql-community-server-5.7.25-1.el7.x86_64`
+  - `python3-mysql-1.4.6-5.el8.x86_64`
 
   - playbook installer will look for any `*.deb` or `*.rpm` files depending on OS family
   - it will install first the ones in /prereqs, then root folder
