@@ -29,7 +29,8 @@ Create a folder for these components to put their packages
   - playbook installer will search and install any `*.rpm` or `*_amd64.deb` files present in this folder
 
 - [OS family]/elasticsearch
-  - playbook installer will look for a file in format elasticsearch-{{ es_version }}.deb or .rpm depending on OS family.
+  - playbook installer will look for a file in format elasticsearch-{{ es_version }}.deb or .rpm depending on OS family
+  - you should have only the elasticsearch package file
     - Example: `elasticsearch-7.15.2.rpm`
 
 - [OS family]/mongodb: you should have at least these packages
