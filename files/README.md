@@ -12,7 +12,7 @@ Create a folder for these components to put their packages
   - other components still rely on JDK 1.8 (for openJDK taken from https://adoptopenjdk.net/releases.html) or can work with GraalVM
   - so, if you plan to install on a single host, it is recommended to keep only GraalVM jdk
 
-- '<<OS family>>' = Debian
+- [OS family]] = Debian
       - all Debian family (Ubuntu, ...) DEB packages
 
 - '<OS family>' = RedHat
