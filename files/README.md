@@ -4,7 +4,7 @@ Put here all packages files if you want to use force_local_install = true
 
 Create a folder for these components to put their packages
 
-- jdk: you should have <ins>ONLY ONE</ins> jdk package in gz format
+- jdk: you should have [ins]ONLY ONE[/ins] jdk package in gz format
   - playbook installer will untar any `*.gz` files present.
     - Example: `graalvm-ce-java8-linux-amd64-19.3.6.tar.gz`
 
@@ -12,14 +12,14 @@ Create a folder for these components to put their packages
   - other components still rely on JDK 1.8 (for openJDK taken from https://adoptopenjdk.net/releases.html) or can work with GraalVM
   - so, if you plan to install on a single host, it is recommended to keep only GraalVM jdk
 
-- [OS family]] = Debian
+- [OS family] = Debian
       - all Debian family (Ubuntu, ...) DEB packages
 
-- '<OS family>' = RedHat
+- [OS family] = RedHat
       - all Red Hat Family (Rhel, CentOS, Fedora) RPM packages
       - this should be the RPM packages linked to your OS version (except for MySQL)
 
-- '<OS family>'/: in root folder of the OS family, you should have
+- [OS family]/: in root folder of the OS family, you should have
       - unzip (required to install vault and SWEAGLE)
       - epel (optional, for Red Hat OS family to install jq)
       - jq (required only to load data in SWEAGLE )
@@ -28,11 +28,11 @@ Create a folder for these components to put their packages
       - screen (optional)
       - playbook installer will search and install any `*.rpm` or `*_amd64.deb` files present in this folder
 
-- '<OS family>'/elasticsearch
+- [OS family]/elasticsearch
       - playbook installer will look for a file in format elasticsearch-{{ es_version }}.deb or .rpm depending on OS family.
         - Example: `elasticsearch-7.15.2.rpm`
 
-- <OS family>/mongodb: you should have at least these packages
+- [OS family]/mongodb: you should have at least these packages
       - /prereqs/* (all packages required for list below)
       - mongodb-org-server
       - mongodb-org-shell
@@ -42,7 +42,7 @@ Create a folder for these components to put their packages
       - playbook installer will look for any `*.deb` or `*.rpm` files depending on OS family
       - it will install first the ones in /prereqs, then root folder
 
-- <OS family>/mysql: you should have (in this order)
+- [OS family]/mysql: you should have (in this order)
       - `/prereqs/net-tools-2.0-0.20150915git.4.mga6.x86_64`
       - `1-mysql-community-common-5.7.25-1.el7.x86_64`
       - `2-mysql-community-libs-5.7.25-1.el7.x86_64`
@@ -54,7 +54,7 @@ Create a folder for these components to put their packages
       - playbook installer will look for any `*.deb` or `*.rpm` files depending on OS family
       - it will install first the ones in /prereqs, then root folder
 
-- <OS family>/nginx
+- [OS family]/nginx
       - playbook installer will look for any file like `*nginx*.deb` or `.rpm` depending on OS family.
         - Example: `nginx-1.14.2-1.el7_4.ngx.x86_64.rpm`
 
@@ -95,6 +95,6 @@ Create a folder for these components to put their packages
 - mysql-jdbc library should be compressed in tar.gz format
 If you've got the jar file, you can create this tar.gz file with instruction below
 
-`tar -czvf <target file>.tar.gz <source file>`
+`tar -czvf [target file].tar.gz [source file]`
 
 Example: `tar -czvf mysql-connector-java-8.0.20.jar.tar.gz ./mysql-connector-java-8.0.20.jar`
