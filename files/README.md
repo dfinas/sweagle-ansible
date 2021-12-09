@@ -5,8 +5,8 @@ Put here all packages files if you want to use force_local_install = true
 Create a folder for these components to put their packages
 
 - jdk: you should have <ins>ONLY ONE</ins> jdk package in gz format
-  - playbook installer will untar any `*.gz` files present. Example:
-  - `graalvm-ce-java8-linux-amd64-19.3.6.tar.gz`
+  - playbook installer will untar any `*.gz` files present.
+  -   Example: `graalvm-ce-java8-linux-amd64-19.3.6.tar.gz`
 
   - since 3.10, script executor will rely on GraalVM jdk (jdk1.8 v19.2 or higher)
   - other components still rely on JDK 1.8 (for openJDK taken from https://adoptopenjdk.net/releases.html) or can work with GraalVM
@@ -29,8 +29,8 @@ Create a folder for these components to put their packages
       - playbook installer will search and install any `*.rpm` or `*_amd64.deb` files present in this folder
 
 - <OS family>/elasticsearch
-      - playbook installer will look for a file in format elasticsearch-{{ es_version }}.deb or .rpm depending on OS family. Example:
-      - `elasticsearch-7.15.2.rpm`
+      - playbook installer will look for a file in format elasticsearch-{{ es_version }}.deb or .rpm depending on OS family.
+        - Example: `elasticsearch-7.15.2.rpm`
 
 - <OS family>/mongodb: you should have at least these packages
       - /prereqs/* (all packages required for list below)
@@ -55,8 +55,8 @@ Create a folder for these components to put their packages
       - it will install first the ones in /prereqs, then root folder
 
 - <OS family>/nginx
-      - playbook installer will look for any file like `*nginx*.deb` or `.rpm` depending on OS family. Example:
-      - `nginx-1.14.2-1.el7_4.ngx.x86_64.rpm`
+      - playbook installer will look for any file like `*nginx*.deb` or `.rpm` depending on OS family.
+        - Example: `nginx-1.14.2-1.el7_4.ngx.x86_64.rpm`
 
 - sweagle: you should have
       `/full-{{YOUR VERSION}}.zip`
@@ -71,20 +71,20 @@ Create a folder for these components to put their packages
 
 - vault
       - playbook installer will unzip any file with filename like `*vault_{{ vault_version }}*.zip`
-      - Example: `vault_0.7.2_linux_386.zip`
+        - Example: `vault_0.7.2_linux_386.zip`
 
 
 (For 3.13 and upward)
 - mysql-jdbc: you should have a java8 MySQL JDBC connector library
       - playbook installer will unzip any file with filename like `mysql*.gz`
-      - Example: `mysql-connector-java-8.0.13.tar.gz`
+        - Example: `mysql-connector-java-8.0.13.tar.gz`
       - downloaded from https://downloads.mysql.com/archives/c-j/
 
 
 (For 3.21 and upward)
 - regex: you should have a java8 Regex library
       - playbook installer will unzip any file with filename like `regex*.gz`
-      - Example:`regex-21.1.0.jar.tar.gz`
+        - Example:`regex-21.1.0.jar.tar.gz`
       - downloaded from https://repo1.maven.org/maven2/org/graalvm/regex/regex/21.1.0/regex-21.1.0.jar
 
 
