@@ -76,6 +76,7 @@ Tags must be put in lowercase, example to install only MySQL:
 ## TESTED ON
 In the list below, only latest combinations of OS and Sweagle/components versions are tested together
 
+ANSIBLE:
 - Ansible 2.4.2, 2.5.1, 2.8.5, 2.9.6, 2.9.10, 2.9.27
 
 OS:
@@ -87,7 +88,7 @@ SWEAGLE:
   - for 3.11 and higher, be sure to use GraalVM JDK for ScriptExecutor
   - for 3.13 and higher, be sure to add mysql-connector-java-8.0.xx.tar.gz in files folder (tested with 8.0.13 and 8.0.20)
 
-PREREQUISITES
+PREREQUISITES:
 - JDK: OpenJDK 8u242 and starting SWEAGLE 3.13 and higher: GraalVM 19.3.1, 21.1.0
 - ElasticSearch 6.6.2 (for SWEAGLE below 3.10), 6.8.6 (for SWEAGLE 3.10 to 3.13), 6.8.12 (for SWEAGLE 3.13 to 3.22), 7.15.2 (for SWEAGLE 3.22 and higher)
 - Mongo 3.6 (for SWEAGLE to 3.13), 4.0.20 (for SWEAGLE 3.13 to 3.22), 4.4.10 (for SWEAGLE 3.22 and higher)
